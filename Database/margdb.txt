@@ -1,0 +1,212 @@
+USE [master]
+GO
+
+CREATE DATABASE [margdb]
+ CONTAINMENT = NONE
+ ON  PRIMARY 
+( NAME = N'margdb', FILENAME = N'C:\ccou\node\margdb.mdf' , SIZE = 8192KB , MAXSIZE = UNLIMITED, FILEGROWTH = 65536KB )
+ LOG ON 
+( NAME = N'margdb_log', FILENAME = N'C:\ccou\node\margdb_log.ldf' , SIZE = 8192KB , MAXSIZE = 2048GB , FILEGROWTH = 65536KB )
+ WITH CATALOG_COLLATION = DATABASE_DEFAULT
+
+
+-----
+
+
+USE [margdb]
+GO
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ONvisu
+GO
+
+DROP TABLE [Margarita].[Debit]
+GO
+DROP TABLE [Margarita].[InvoiceItem]
+GO
+DROP TABLE [Margarita].[Invoice]
+GO
+DROP TABLE [Margarita].[OrderItem]
+GO
+DROP TABLE [Margarita].[Order]
+GO
+DROP TABLE [Margarita].[Menu]
+GO
+DROP TABLE [Margarita].[User]
+GO
+DROP TABLE [Margarita].[Team]
+GO
+DROP TABLE [Margarita].[Staff]
+GO
+
+DROP SCHEMA [Margarita]
+GO
+
+CREATE SCHEMA [Margarita]
+GO
+
+CREATE TABLE [Margarita].[Staff](
+	[Id] UNIQUEIDENTIFIER NOT NULL DEFAULT newid(),
+	[Name] NVARCHAR(max) NOT NULL,
+	[Login] NVARCHAR(max) NOT NULL,
+	[Password] NVARCHAR(max) NOT NULL,
+	[CreatedDate] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+	[CreatedBy] UNIQUEIDENTIFIER NOT NULL,
+
+	CONSTRAINT [PK_Staff] PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [FK_Staff_Creator] FOREIGN KEY ([CreatedBy]) REFERENCES [Margarita].[Staff]([Id]),
+) 
+GO
+
+CREATE TABLE [Margarita].[Team](
+	[Id] UNIQUEIDENTIFIER NOT NULL DEFAULT newid(),
+	[Name] NVARCHAR(max) NOT NULL,
+	[Email] NVARCHAR(max) NULL,
+	[CreatedDate] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+	[CreatedBy] UNIQUEIDENTIFIER NOT NULL,
+
+	CONSTRAINT [PK_Team] PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [FK_Team_Creator] FOREIGN KEY ([CreatedBy]) REFERENCES [Margarita].[Staff]([Id]),
+) 
+GO
+
+CREATE TABLE [Margarita].[User](
+	[Id] UNIQUEIDENTIFIER NOT NULL DEFAULT newid(),
+	[Name] NVARCHAR(max) NOT NULL,
+	[Password] UNIQUEIDENTIFIER NOT NULL,
+	[Email] NVARCHAR(max) NULL,
+	[TeamId] UNIQUEIDENTIFIER NOT NULL,
+	[Pic] VARCHAR(max) NULL,
+	[IsRegistered] BIT NOT NULL,
+	[RegisteredBy] UNIQUEIDENTIFIER NULL,
+	[CreatedDate] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+	[CreatedBy] UNIQUEIDENTIFIER NOT NULL,
+
+	CONSTRAINT [PK_User] PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [FK_User_Team] FOREIGN KEY ([TeamId]) REFERENCES [Margarita].[Team]([Id]),
+    CONSTRAINT [FK_User_Registerer] FOREIGN KEY ([RegisteredBy]) REFERENCES [Margarita].[Staff]([Id]),
+    CONSTRAINT [FK_User_Creator] FOREIGN KEY ([CreatedBy]) REFERENCES [Margarita].[Staff]([Id]),
+) 
+GO
+
+CREATE TABLE [Margarita].[Menu](
+	[Id] UNIQUEIDENTIFIER NOT NULL DEFAULT newid(),
+	[Name] NVARCHAR(max) NOT NULL,
+	[Category] NVARCHAR(max) NOT NULL,
+	[Price] DECIMAL(12, 2) NOT NULL,
+	[IsActive] BIT NOT NULL,
+	[CreatedDate] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+	[CreatedBy] UNIQUEIDENTIFIER NOT NULL,
+	[DeletedBy] UNIQUEIDENTIFIER NULL,
+
+	CONSTRAINT [PK_Menu] PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [FK_Menu_Creator] FOREIGN KEY ([CreatedBy]) REFERENCES [Margarita].[Staff]([Id]),
+    CONSTRAINT [FK_Menu_Destructor] FOREIGN KEY ([DeletedBy]) REFERENCES [Margarita].[Staff]([Id]),
+) 
+GO
+
+CREATE TABLE [Margarita].[Order](
+	[Id] UNIQUEIDENTIFIER NOT NULL DEFAULT newid(),
+	[CustomerId] UNIQUEIDENTIFIER NOT NULL,
+	[IsDelivered] BIT NOT NULL,
+	[TakenInChargeBy] UNIQUEIDENTIFIER NULL,
+	[CreatedDate] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+	[CreatedBy] UNIQUEIDENTIFIER NOT NULL,
+
+	CONSTRAINT [PK_Order] PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [FK_Order_Customer] FOREIGN KEY ([CustomerId]) REFERENCES [Margarita].[User]([Id]),
+    CONSTRAINT [FK_Order_TakenInCharge] FOREIGN KEY ([TakenInChargeBy]) REFERENCES [Margarita].[Staff]([Id]),
+    CONSTRAINT [FK_Order_Creator] FOREIGN KEY ([CreatedBy]) REFERENCES [Margarita].[User]([Id]),
+) 
+GO
+
+CREATE TABLE [Margarita].[OrderItem](
+	[Id] UNIQUEIDENTIFIER NOT NULL DEFAULT newid(),
+	[OrderId] UNIQUEIDENTIFIER NOT NULL,
+	[MenuId] UNIQUEIDENTIFIER NOT NULL,
+	[Amount] INT NOT NULL,
+
+	CONSTRAINT [PK_OrderItem] PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [FK_OrderItem_Order] FOREIGN KEY ([OrderId]) REFERENCES [Margarita].[Order]([Id]) ON DELETE CASCADE,
+    CONSTRAINT [FK_OrderItem_Menu] FOREIGN KEY ([MenuId]) REFERENCES [Margarita].[Menu]([Id]),
+) 
+GO
+
+CREATE TABLE [Margarita].[Invoice](
+	[Id] UNIQUEIDENTIFIER NOT NULL DEFAULT newid(),
+	[OrderId] UNIQUEIDENTIFIER NOT NULL,
+	[CustomerId] UNIQUEIDENTIFIER NOT NULL,
+	[Total] DECIMAL(12, 2) NOT NULL,
+	[CreatedDate] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+	[CreatedBy] UNIQUEIDENTIFIER NOT NULL,
+
+	CONSTRAINT [PK_Invoice] PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [FK_Invoice_Order] FOREIGN KEY ([OrderId]) REFERENCES [Margarita].[Order]([Id]),
+    CONSTRAINT [FK_Invoice_Customer] FOREIGN KEY ([CustomerId]) REFERENCES [Margarita].[User]([Id]),
+    CONSTRAINT [FK_Invoice_Creator] FOREIGN KEY ([CreatedBy]) REFERENCES [Margarita].[Staff]([Id]),
+) 
+GO
+
+CREATE TABLE [Margarita].[InvoiceItem](
+	[Id] UNIQUEIDENTIFIER NOT NULL DEFAULT newid(),
+	[InvoiceId] UNIQUEIDENTIFIER NOT NULL,
+	[MenuId] UNIQUEIDENTIFIER NOT NULL,
+	[Amount] INT NOT NULL,
+
+	CONSTRAINT [PK_InvoiceItem] PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [FK_InvoiceItem_Invoice] FOREIGN KEY ([InvoiceId]) REFERENCES [Margarita].[Invoice]([Id]) ON DELETE CASCADE,
+    CONSTRAINT [FK_InvoiceItem_Menu] FOREIGN KEY ([MenuId]) REFERENCES [Margarita].[Menu]([Id]),
+) 
+GO
+
+CREATE TABLE [Margarita].[Debit](
+	[Id] UNIQUEIDENTIFIER NOT NULL DEFAULT newid(),
+	[CustomerId] UNIQUEIDENTIFIER NOT NULL,
+	[Medium] VARCHAR(max) NOT NULL,
+	[Total] DECIMAL(12, 2) NOT NULL,
+	[CreatedDate] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+	[CreatedBy] UNIQUEIDENTIFIER NOT NULL,
+
+	CONSTRAINT [PK_Debit] PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [FK_Debit_Customer] FOREIGN KEY ([CustomerId]) REFERENCES [Margarita].[User]([Id]),
+    CONSTRAINT [FK_Debit_Creator] FOREIGN KEY ([CreatedBy]) REFERENCES [Margarita].[Staff]([Id]),
+) 
+GO
+
+INSERT [Margarita].[Staff] ([Id], [Name], [Login], [Password], [CreatedDate], [CreatedBy]) 
+VALUES (N'00000001-0001-0001-0001-000000000001', N'Chris', N'ccou', N'fdb2d63c4ae9344375baea39aa82019223376f5e', GETUTCDATE(), N'00000001-0001-0001-0001-000000000001')
+GO
+INSERT [Margarita].[Team] ([Id], [Name], [Email], [CreatedDate], [CreatedBy]) 
+VALUES (N'45a72f76-f248-4476-b29a-10c988183ac0', N'Viry 1', NULL, GETUTCDATE(), N'00000001-0001-0001-0001-000000000001')
+GO
+INSERT [Margarita].[User] ([Id], [Name], [Password], [Email], [TeamId], [Pic], [IsRegistered], [RegisteredBy], [CreatedDate], [CreatedBy]) 
+VALUES (N'cc68a50a-b1cd-4207-9230-c0cc534eb1ef', N'Stéphane Vergnaud', N'45a72f76-f248-4476-b29a-10c988183ac0', NULL, N'45a72f76-f248-4476-b29a-10c988183ac0', NULL, 0, NULL, GETUTCDATE(), N'00000001-0001-0001-0001-000000000001')
+GO
+INSERT [Margarita].[Menu] ([Id], [Name], [Category], [Price], [IsActive], [CreatedDate], [CreatedBy], [DeletedBy]) 
+VALUES (N'ae1052c7-0040-45e1-a41d-1fd97eedbf78', N'Heineken', N'Bière', CAST(3.00 AS Decimal(12, 2)), 1, GETUTCDATE(), N'00000001-0001-0001-0001-000000000001', NULL)
+GO
+INSERT [Margarita].[Menu] ([Id], [Name], [Category], [Price], [IsActive], [CreatedDate], [CreatedBy], [DeletedBy]) 
+VALUES (N'11f4fa39-8f27-4272-84e8-34cb2b09ad05', N'Jus d''orange', N'Soft', CAST(2.00 AS Decimal(12, 2)), 1, GETUTCDATE(), N'00000001-0001-0001-0001-000000000001', NULL)
+GO
+INSERT [Margarita].[Order] ([Id], [CustomerId], [IsDelivered], [CreatedDate], [CreatedBy]) 
+VALUES (N'9b9524e7-c121-4349-8f69-7efa9b9381b1', N'cc68a50a-b1cd-4207-9230-c0cc534eb1ef', 1, GETUTCDATE(), N'cc68a50a-b1cd-4207-9230-c0cc534eb1ef')
+GO
+INSERT [Margarita].[OrderItem] ([Id], [OrderId], [MenuId], [Amount]) 
+VALUES (N'8a8d0db1-0c32-4151-b13e-857b49298210', N'9b9524e7-c121-4349-8f69-7efa9b9381b1', N'ae1052c7-0040-45e1-a41d-1fd97eedbf78', 1)
+GO
+INSERT [Margarita].[OrderItem] ([Id], [OrderId], [MenuId], [Amount]) 
+VALUES (N'537fa4ea-789b-4009-a580-ae78bdd374dc', N'9b9524e7-c121-4349-8f69-7efa9b9381b1', N'11f4fa39-8f27-4272-84e8-34cb2b09ad05', 3)
+GO
+INSERT [Margarita].[Invoice] ([Id], [OrderId], [CustomerId], [Total], [CreatedDate], [CreatedBy]) 
+VALUES (N'62740c65-c4e0-4dca-b96d-4da27debcfe0', N'9b9524e7-c121-4349-8f69-7efa9b9381b1', N'cc68a50a-b1cd-4207-9230-c0cc534eb1ef', CAST(5.00 AS Decimal(12, 2)), GETUTCDATE(), N'00000001-0001-0001-0001-000000000001')
+GO
+INSERT [Margarita].[InvoiceItem] ([Id], [InvoiceId], [MenuId], [Amount]) 
+VALUES (N'967bf5ad-483a-4bbf-ae70-c699593a56bd', N'62740c65-c4e0-4dca-b96d-4da27debcfe0', N'ae1052c7-0040-45e1-a41d-1fd97eedbf78', 1)
+GO
+INSERT [Margarita].[InvoiceItem] ([Id], [InvoiceId], [MenuId], [Amount]) 
+VALUES (N'60f8da17-7c24-41dd-939a-f5d3ac113588', N'62740c65-c4e0-4dca-b96d-4da27debcfe0', N'11f4fa39-8f27-4272-84e8-34cb2b09ad05', 1)
+GO
+INSERT [Margarita].[Debit] ([Id], [CustomerId], [Medium], [Total], [CreatedDate], [CreatedBy]) 
+VALUES (N'cf56d113-2b71-4591-8fb0-e057e48bc7da', N'cc68a50a-b1cd-4207-9230-c0cc534eb1ef', N'Sumup', CAST(50.00 AS Decimal(12, 2)), GETUTCDATE(), N'00000001-0001-0001-0001-000000000001')
+GO
