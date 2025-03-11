@@ -34,7 +34,7 @@ public partial class MargdbContext : DbContext
     public DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Data Source=192.168.1.1;Initial Catalog=margdb;User ID=sa;Password=CK149pce+;Encrypt=False");
+        => optionsBuilder.UseSqlServer("Data Source=(localdb)\\marg;Initial Catalog=margdb;Integrated Security=True;Connect Timeout=30");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
