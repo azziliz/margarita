@@ -45,7 +45,7 @@ namespace Margarita.Controllers
         // POST: api/Orders
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Order>> PostOrder(Order order)
+        public async Task<ActionResult<Order>> PostOrder([FromQuery] Guid cust, [FromBody]Order order)
         {
             /*
              * Exemple :
@@ -65,6 +65,13 @@ namespace Margarita.Controllers
     ]
 }
              * */
+            var usr = await _context.Users.FindAsync(cust);
+            if (usr == null)
+            {
+                return NotFound();
+            }
+
+            order.CreatedBy = cust;
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 

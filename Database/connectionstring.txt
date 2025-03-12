@@ -2,3 +2,17 @@ Data Source=192.168.1.1;Initial Catalog=margdb;User ID=sa;Password=***********;E
 Data Source=(localdb)\\marg;Initial Catalog=margdb;Integrated Security=True;Connect Timeout=30
 
 dotnet ef dbcontext scaffold "Data Source=192.168.1.1;Initial Catalog=margdb;User ID=sa;Password=***;Encrypt=False" Microsoft.EntityFrameworkCore.SqlServer
+
++--------------+--------------+------+--------+
+| url          | all (unauth) | user | admin  |
++--------------+--------------+------+--------+
+| GET menu     | x            |      |        |
+| POST menu    |              |      | x      |
+| DEL menu     |              |      | x      |
+| GET order    |              |      | x      |
+| POST order   |              | x    |        |
+| DEL order    |              |      |        |
+| GET invoice  |              | x    |        |
+| POST invoice |              |      | x      |
+| DEL invoice  |              |      |        |
++--------------+--------------+------+--------+

@@ -12,7 +12,7 @@ public partial class Order
 
     public DateTime CreatedDate { get; set; }
 
-    public Guid CreatedBy { get; set; }
+    public Guid? CreatedBy { get; set; }
 
     public User? CreatedByNavigation { get; set; } = null!;
 
