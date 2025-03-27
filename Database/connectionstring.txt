@@ -6,13 +6,13 @@ dotnet ef dbcontext scaffold "Data Source=192.168.1.1;Initial Catalog=margdb;Use
 +--------------+--------------+------+--------+
 | url          | all (unauth) | user | admin  |
 +--------------+--------------+------+--------+
-| GET menu     | x            |      |        |
-| POST menu    |              |      | x      |
-| DEL menu     |              |      | x      |
-| GET order    |              |      | x      |
-| POST order   |              | x    |        |
+| GET menu     | 1            |      |        |
+| POST menu    |              |      | 4      |
+| DEL menu     |              |      | 4      |
+| GET order    |              |      | 3      |
+| POST order   |              | 2    |        |
 | DEL order    |              |      |        |
-| GET invoice  |              | x    |        |
-| POST invoice |              |      | x      |
+| GET invoice  |              | 2    |        |
+| POST invoice |              |      | 2      |
 | DEL invoice  |              |      |        |
 +--------------+--------------+------+--------+

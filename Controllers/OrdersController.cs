@@ -48,7 +48,7 @@ namespace Margarita.Controllers
         public async Task<ActionResult<Order>> PostOrder([FromQuery] Guid cust, [FromBody]Order order)
         {
             /*
-             * Exemple :
+             * Exemple : api/orders?cust=cc68a50a-b1cd-4207-9230-c0cc534eb1ef
              * 
 {
     "customerId": "cc68a50a-b1cd-4207-9230-c0cc534eb1ef",
@@ -71,6 +71,8 @@ namespace Margarita.Controllers
                 return NotFound();
             }
 
+            // always override
+            order.CustomerId = cust;
             order.CreatedBy = cust;
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
