@@ -3,16 +3,47 @@ Data Source=(localdb)\\marg;Initial Catalog=margdb;Integrated Security=True;Conn
 
 dotnet ef dbcontext scaffold "Data Source=192.168.1.1;Initial Catalog=margdb;User ID=sa;Password=***;Encrypt=False" Microsoft.EntityFrameworkCore.SqlServer
 
-+--------------+--------------+------+--------+
-| url          | all (unauth) | user | admin  |
-+--------------+--------------+------+--------+
-| GET menu     | 1            |      |        |
-| POST menu    |              |      | 4      |
-| DEL menu     |              |      | 4      |
-| GET order    |              |      | 3      |
-| POST order   |              | 2    |        |
-| DEL order    |              |      |        |
-| GET invoice  |              | 2    |        |
-| POST invoice |              |      | 2      |
-| DEL invoice  |              |      |        |
-+--------------+--------------+------+--------+
++-----------------------+--------------+------+--------+
+| url                   | all (unauth) | user | admin  |
++-----------------------+--------------+------+--------+
+| GET menu              | x            |      |        |
+| POST menu             |              |      | 4      |
+| DEL menu              |              |      | 4      |
+| GET order/mine        |              | 4    |        |
+| GET order/todo        |              |      | 3      |
+| GET order/all         |              |      | 4      |
+| POST order            |              | x    |        |
+| DEL order             |              |      |        |
+| GET invoice/mine      |              | x    |        |
+| GET invoice/all       |              |      | 4      |
+| POST invoice          |              |      | x      |
+| DEL invoice           |              |      |        |
+| GET debit/mine        |              | 4    |        |
+| GET debit/all         |              |      | 4      |
+| POST debit            |              |      | 4      |
+| DEL debit             |              |      |        |
++-----------------------+--------------+------+--------+
+
+chriskang.synology.me
+|
+v
+DNS :
+Question
+dig @1.1.1.1 chriskang.synology.me. A
+Answer
+chriskang.synology.me.	240	A	91.164.191.224
+|
+v
+https://chriskang.synology.me:35882/
+Freebox :
+Protocole: tcp 
+WAN : 35882
+LAN: 15882
+Commentaire: Node NAS
+|
+v
+Reverse proxy NAS :
+chriskang.synology.me
+Source
+https://*:15882
+Destination

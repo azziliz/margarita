@@ -22,17 +22,17 @@ public partial class User
 
     public Guid CreatedBy { get; set; }
 
-    public virtual Staff CreatedByNavigation { get; set; } = null!;
+    public Staff CreatedByNavigation { get; set; } = null!;
 
-    public virtual ICollection<Debit> Debits { get; set; } = new List<Debit>();
+    public ICollection<Debit> Debits { get; set; } = new List<Debit>();
 
-    public virtual ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
+    public ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
 
-    public virtual ICollection<Order> OrderCreatedByNavigations { get; set; } = new List<Order>();
+    public ICollection<Order> OrderCreatedByNavigations { get; set; } = new List<Order>();
 
-    public virtual ICollection<Order> OrderCustomers { get; set; } = new List<Order>();
+    public ICollection<Order> OrderCustomers { get; set; } = new List<Order>();
 
-    public virtual Staff? RegisteredByNavigation { get; set; }
+    public Staff? RegisteredByNavigation { get; set; }
 
-    public virtual Team Team { get; set; } = null!;
+    public Team Team { get; set; } = null!;
 }

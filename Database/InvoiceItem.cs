@@ -10,5 +10,5 @@ public partial class InvoiceItem
 
     public int Amount { get; set; }
 
-    public Menu Menu { get; set; } = null!;
+    public Menu? Menu { get; set; } = null!;
 }

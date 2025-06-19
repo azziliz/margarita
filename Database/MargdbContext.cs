@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
-namespace Margarita.Database;
+namespace Margarita;
 
 public partial class MargdbContext : DbContext
 {
@@ -34,7 +32,7 @@ public partial class MargdbContext : DbContext
     public DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Data Source=(localdb)\\marg;Initial Catalog=margdb;Integrated Security=True;Connect Timeout=30");
+        => optionsBuilder.UseSqlServer("Data Source=192.168.1.1;Initial Catalog=margdb;User ID=sa;Password=CK149pce+;Encrypt=False");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -43,7 +41,9 @@ public partial class MargdbContext : DbContext
             entity.ToTable("Debit", "Margarita");
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())").HasConversion(
+                v => v,
+                v => new DateTime(v.Ticks, DateTimeKind.Utc));
             entity.Property(e => e.Total).HasColumnType("decimal(12, 2)");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany()
@@ -62,7 +62,9 @@ public partial class MargdbContext : DbContext
             entity.ToTable("Invoice", "Margarita");
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())").HasConversion(
+                v => v,
+                v => new DateTime(v.Ticks, DateTimeKind.Utc));
             entity.Property(e => e.Total).HasColumnType("decimal(12, 2)");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany()
@@ -103,7 +105,9 @@ public partial class MargdbContext : DbContext
             entity.ToTable("Menu", "Margarita");
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())").HasConversion(
+                v => v,
+                v => new DateTime(v.Ticks, DateTimeKind.Utc));
             entity.Property(e => e.Price).HasColumnType("decimal(12, 2)");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany()
@@ -121,7 +125,9 @@ public partial class MargdbContext : DbContext
             entity.ToTable("Order", "Margarita");
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())").HasConversion(
+                v => v,
+                v => new DateTime(v.Ticks, DateTimeKind.Utc));
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.OrderCreatedByNavigations)
                 .HasForeignKey(d => d.CreatedBy)
@@ -160,7 +166,9 @@ public partial class MargdbContext : DbContext
             entity.ToTable("Staff", "Margarita");
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())").HasConversion(
+                v => v,
+                v => new DateTime(v.Ticks, DateTimeKind.Utc));
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany()
                 .HasForeignKey(d => d.CreatedBy)
@@ -173,7 +181,9 @@ public partial class MargdbContext : DbContext
             entity.ToTable("Team", "Margarita");
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())").HasConversion(
+                v => v,
+                v => new DateTime(v.Ticks, DateTimeKind.Utc));
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany()
                 .HasForeignKey(d => d.CreatedBy)
@@ -186,7 +196,9 @@ public partial class MargdbContext : DbContext
             entity.ToTable("User", "Margarita");
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())").HasConversion(
+                v => v,
+                v => new DateTime(v.Ticks, DateTimeKind.Utc));
             entity.Property(e => e.Pic).IsUnicode(false);
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany()

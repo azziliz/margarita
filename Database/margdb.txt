@@ -51,6 +51,7 @@ CREATE TABLE [Margarita].[Staff](
 	[Name] NVARCHAR(max) NOT NULL,
 	[Login] NVARCHAR(max) NOT NULL,
 	[Password] NVARCHAR(max) NOT NULL,
+	[IsActive] BIT NOT NULL,
 	[CreatedDate] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
 	[CreatedBy] UNIQUEIDENTIFIER NOT NULL,
 
@@ -80,6 +81,7 @@ CREATE TABLE [Margarita].[User](
 	[Pic] VARCHAR(max) NULL,
 	[IsRegistered] BIT NOT NULL,
 	[RegisteredBy] UNIQUEIDENTIFIER NULL,
+	[IsActive] BIT NOT NULL,
 	[CreatedDate] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
 	[CreatedBy] UNIQUEIDENTIFIER NOT NULL,
 
@@ -87,6 +89,53 @@ CREATE TABLE [Margarita].[User](
     CONSTRAINT [FK_User_Team] FOREIGN KEY ([TeamId]) REFERENCES [Margarita].[Team]([Id]),
     CONSTRAINT [FK_User_Registerer] FOREIGN KEY ([RegisteredBy]) REFERENCES [Margarita].[Staff]([Id]),
     CONSTRAINT [FK_User_Creator] FOREIGN KEY ([CreatedBy]) REFERENCES [Margarita].[Staff]([Id]),
+) 
+GO
+
+CREATE TABLE [Margarita].[Ingredient](
+	[Id] UNIQUEIDENTIFIER NOT NULL DEFAULT newid(),
+	[Name] NVARCHAR(max) NOT NULL,
+	[IsActive] BIT NOT NULL,
+	[CreatedDate] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+	[CreatedBy] UNIQUEIDENTIFIER NOT NULL,
+	[DeletedBy] UNIQUEIDENTIFIER NULL,
+
+	CONSTRAINT [PK_Ingredient] PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [FK_Ingredient_Creator] FOREIGN KEY ([CreatedBy]) REFERENCES [Margarita].[Staff]([Id]),
+    CONSTRAINT [FK_Ingredient_Destructor] FOREIGN KEY ([DeletedBy]) REFERENCES [Margarita].[Staff]([Id]),
+) 
+GO
+
+CREATE TABLE [Margarita].[Container](
+	[Id] UNIQUEIDENTIFIER NOT NULL DEFAULT newid(),
+	[Name] NVARCHAR(max) NOT NULL,
+	[IsActive] BIT NOT NULL,
+	[IngredientId] UNIQUEIDENTIFIER NOT NULL,
+	[Quantity] DECIMAL(12, 2) NOT NULL,
+	[CreatedDate] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+	[CreatedBy] UNIQUEIDENTIFIER NOT NULL,
+	[DeletedBy] UNIQUEIDENTIFIER NULL,
+
+	CONSTRAINT [PK_Container] PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [FK_Container_Ingredient] FOREIGN KEY ([IngredientId]) REFERENCES [Margarita].[Ingredient]([Id]),
+    CONSTRAINT [FK_Container_Creator] FOREIGN KEY ([CreatedBy]) REFERENCES [Margarita].[Staff]([Id]),
+    CONSTRAINT [FK_Container_Destructor] FOREIGN KEY ([DeletedBy]) REFERENCES [Margarita].[Staff]([Id]),
+) 
+GO
+
+CREATE TABLE [Margarita].[Inventory](
+	[Id] UNIQUEIDENTIFIER NOT NULL DEFAULT newid(),
+	[IsActive] BIT NOT NULL,
+	[ContainerId] UNIQUEIDENTIFIER NOT NULL,
+	[Number] DECIMAL(12, 2) NOT NULL,
+	[CreatedDate] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+	[CreatedBy] UNIQUEIDENTIFIER NOT NULL,
+	[DeletedBy] UNIQUEIDENTIFIER NULL,
+
+	CONSTRAINT [PK_Inventory] PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [FK_Inventory_Container] FOREIGN KEY ([ContainerId]) REFERENCES [Margarita].[Container]([Id]),
+    CONSTRAINT [FK_Inventory_Creator] FOREIGN KEY ([CreatedBy]) REFERENCES [Margarita].[Staff]([Id]),
+    CONSTRAINT [FK_Inventory_Destructor] FOREIGN KEY ([DeletedBy]) REFERENCES [Margarita].[Staff]([Id]),
 ) 
 GO
 
@@ -106,11 +155,33 @@ CREATE TABLE [Margarita].[Menu](
 ) 
 GO
 
+CREATE TABLE [Margarita].[Recipe](
+	[Id] UNIQUEIDENTIFIER NOT NULL DEFAULT newid(),
+	[IsActive] BIT NOT NULL,
+	[MenuId] UNIQUEIDENTIFIER NOT NULL,
+	[IngredientId] UNIQUEIDENTIFIER NOT NULL,
+	[Quantity] DECIMAL(12, 2) NOT NULL,
+	[CreatedDate] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+	[CreatedBy] UNIQUEIDENTIFIER NOT NULL,
+	[DeletedBy] UNIQUEIDENTIFIER NULL,
+
+	CONSTRAINT [PK_Recipe] PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [FK_Recipe_Menu] FOREIGN KEY ([MenuId]) REFERENCES [Margarita].[Menu]([Id]),
+    CONSTRAINT [FK_Recipe_Ingredient] FOREIGN KEY ([IngredientId]) REFERENCES [Margarita].[Ingredient]([Id]),
+    CONSTRAINT [FK_Recipe_Creator] FOREIGN KEY ([CreatedBy]) REFERENCES [Margarita].[Staff]([Id]),
+    CONSTRAINT [FK_Recipe_Destructor] FOREIGN KEY ([DeletedBy]) REFERENCES [Margarita].[Staff]([Id]),
+) 
+GO
+
+
 CREATE TABLE [Margarita].[Order](
 	[Id] UNIQUEIDENTIFIER NOT NULL DEFAULT newid(),
 	[CustomerId] UNIQUEIDENTIFIER NOT NULL,
 	[IsDelivered] BIT NOT NULL,
+	[TakenInChargeDate] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
 	[TakenInChargeBy] UNIQUEIDENTIFIER NULL,
+	[PreparationDate] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+	[DeliveryDate] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
 	[CreatedDate] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
 	[CreatedBy] UNIQUEIDENTIFIER NOT NULL,
 
@@ -171,6 +242,20 @@ CREATE TABLE [Margarita].[Debit](
 	CONSTRAINT [PK_Debit] PRIMARY KEY CLUSTERED ([Id] ASC),
     CONSTRAINT [FK_Debit_Customer] FOREIGN KEY ([CustomerId]) REFERENCES [Margarita].[User]([Id]),
     CONSTRAINT [FK_Debit_Creator] FOREIGN KEY ([CreatedBy]) REFERENCES [Margarita].[Staff]([Id]),
+) 
+GO
+
+CREATE TABLE [Margarita].[Session](
+	[Id] UNIQUEIDENTIFIER NOT NULL DEFAULT newid(),
+	[Name] NVARCHAR(max) NOT NULL,
+	[IsCurrent] BIT NOT NULL,
+	[StartDate] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+	[EndDate] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+	[CreatedDate] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+	[CreatedBy] UNIQUEIDENTIFIER NOT NULL,
+
+	CONSTRAINT [PK_Session] PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [FK_Session_Creator] FOREIGN KEY ([CreatedBy]) REFERENCES [Margarita].[Staff]([Id]),
 ) 
 GO
 

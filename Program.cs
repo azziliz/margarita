@@ -1,40 +1,46 @@
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Http.Json;
 
-using Margarita.Database;
+namespace Margarita;
 
-namespace Margarita
+public class Program
 {
-    public class Program
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
+        var builder = WebApplication.CreateBuilder(args);
+
+        // Add services to the container.
+
+        builder.Services.AddControllers().AddJsonOptions(opt =>
         {
-            var builder = WebApplication.CreateBuilder(args);
+            opt.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        });
 
-            // Add services to the container.
+        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
 
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+        builder.Services.AddDbContext<MargdbContext>();
 
-            builder.Services.AddDbContext<MargdbContext>();
+        var app = builder.Build();
 
-            var app = builder.Build();
+        app.UseDefaultFiles();
+        app.UseStaticFiles();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI(o => o.EnableTryItOutByDefault());
-            }
+        // Configure the HTTP request pipeline.
+        //if (app.Environment.IsDevelopment())
+        //{
+            app.UseSwagger();
+            app.UseSwaggerUI(o => o.EnableTryItOutByDefault());
+        //}
 
-            app.UseHttpsRedirection();
+        app.UseCors(p => p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+        app.UseHttpsRedirection();
 
-            app.UseAuthorization();
+        app.UseAuthorization();
 
+        app.MapControllers();
 
-            app.MapControllers();
-
-            app.Run();
-        }
+        app.Run();
     }
 }

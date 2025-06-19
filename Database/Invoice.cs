@@ -12,13 +12,13 @@ public partial class Invoice
 
     public DateTime CreatedDate { get; set; }
 
-    public Guid CreatedBy { get; set; }
+    public Guid? CreatedBy { get; set; }
 
-    public Staff CreatedByNavigation { get; set; } = null!;
+    public Staff? CreatedByNavigation { get; set; } = null!;
 
-    public User Customer { get; set; } = null!;
+    public User? Customer { get; set; } = null!;
 
     public ICollection<InvoiceItem> InvoiceItems { get; set; } = new List<InvoiceItem>();
 
-    public Order Order { get; set; } = null!;
+    public Order? Order { get; set; } = null!;
 }
