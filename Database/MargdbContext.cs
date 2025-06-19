@@ -13,7 +13,13 @@ public partial class MargdbContext : DbContext
     {
     }
 
+    public DbSet<Container> Containers { get; set; }
+
     public DbSet<Debit> Debits { get; set; }
+
+    public DbSet<Ingredient> Ingredients { get; set; }
+
+    public DbSet<Inventory> Inventories { get; set; }
 
     public DbSet<Invoice> Invoices { get; set; }
 
@@ -25,6 +31,10 @@ public partial class MargdbContext : DbContext
 
     public DbSet<OrderItem> OrderItems { get; set; }
 
+    public DbSet<Recipe> Recipes { get; set; }
+
+    public DbSet<Session> Sessions { get; set; }
+
     public DbSet<Staff> Staff { get; set; }
 
     public DbSet<Team> Teams { get; set; }
@@ -32,10 +42,35 @@ public partial class MargdbContext : DbContext
     public DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Data Source=192.168.1.1;Initial Catalog=margdb;User ID=sa;Password=CK149pce+;Encrypt=False");
+        => optionsBuilder.UseSqlServer("Data Source=192.168.1.1;Initial Catalog=margdb;User ID=sa;Password=*;Encrypt=False");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Container>(entity =>
+        {
+            entity.ToTable("Container", "Margarita");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())").HasConversion(
+                v => v,
+                v => new DateTime(v.Ticks, DateTimeKind.Utc));
+            entity.Property(e => e.Quantity).HasColumnType("decimal(12, 2)");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany()
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Container_Creator");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany()
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_Container_Destructor");
+
+            entity.HasOne(d => d.Ingredient).WithMany()
+                .HasForeignKey(d => d.IngredientId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Container_Ingredient");
+        });
+
         modelBuilder.Entity<Debit>(entity =>
         {
             entity.ToTable("Debit", "Margarita");
@@ -44,6 +79,7 @@ public partial class MargdbContext : DbContext
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())").HasConversion(
                 v => v,
                 v => new DateTime(v.Ticks, DateTimeKind.Utc));
+            entity.Property(e => e.Medium).IsUnicode(false);
             entity.Property(e => e.Total).HasColumnType("decimal(12, 2)");
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany()
@@ -55,6 +91,50 @@ public partial class MargdbContext : DbContext
                 .HasForeignKey(d => d.CustomerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Debit_Customer");
+        });
+
+        modelBuilder.Entity<Ingredient>(entity =>
+        {
+            entity.ToTable("Ingredient", "Margarita");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())").HasConversion(
+                v => v,
+                v => new DateTime(v.Ticks, DateTimeKind.Utc));
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany()
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Ingredient_Creator");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany()
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_Ingredient_Destructor");
+        });
+
+        modelBuilder.Entity<Inventory>(entity =>
+        {
+            entity.ToTable("Inventory", "Margarita");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())").HasConversion(
+                v => v,
+                v => new DateTime(v.Ticks, DateTimeKind.Utc));
+            entity.Property(e => e.Number).HasColumnType("decimal(12, 2)");
+
+            entity.HasOne(d => d.Container).WithMany(p => p.Inventories)
+                .HasForeignKey(d => d.ContainerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Inventory_Container");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany()
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Inventory_Creator");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany()
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_Inventory_Destructor");
         });
 
         modelBuilder.Entity<Invoice>(entity =>
@@ -128,6 +208,15 @@ public partial class MargdbContext : DbContext
             entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())").HasConversion(
                 v => v,
                 v => new DateTime(v.Ticks, DateTimeKind.Utc));
+            entity.Property(e => e.DeliveryDate).HasDefaultValueSql("(getutcdate())").HasConversion(
+                v => v,
+                v => new DateTime(v.Ticks, DateTimeKind.Utc));
+            entity.Property(e => e.PreparationDate).HasDefaultValueSql("(getutcdate())").HasConversion(
+                v => v,
+                v => new DateTime(v.Ticks, DateTimeKind.Utc));
+            entity.Property(e => e.TakenInChargeDate).HasDefaultValueSql("(getutcdate())").HasConversion(
+                v => v,
+                v => new DateTime(v.Ticks, DateTimeKind.Utc));
 
             entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.OrderCreatedByNavigations)
                 .HasForeignKey(d => d.CreatedBy)
@@ -159,6 +248,57 @@ public partial class MargdbContext : DbContext
                 .HasForeignKey(d => d.MenuId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_OrderItem_Menu");
+        });
+
+        modelBuilder.Entity<Recipe>(entity =>
+        {
+            entity.ToTable("Recipe", "Margarita");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())").HasConversion(
+                v => v,
+                v => new DateTime(v.Ticks, DateTimeKind.Utc));
+            entity.Property(e => e.Quantity).HasColumnType("decimal(12, 2)");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany()
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Recipe_Creator");
+
+            entity.HasOne(d => d.DeletedByNavigation).WithMany()
+                .HasForeignKey(d => d.DeletedBy)
+                .HasConstraintName("FK_Recipe_Destructor");
+
+            entity.HasOne(d => d.Ingredient).WithMany()
+                .HasForeignKey(d => d.IngredientId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Recipe_Ingredient");
+
+            entity.HasOne(d => d.Menu).WithMany()
+                .HasForeignKey(d => d.MenuId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Recipe_Menu");
+        });
+
+        modelBuilder.Entity<Session>(entity =>
+        {
+            entity.ToTable("Session", "Margarita");
+
+            entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
+            entity.Property(e => e.CreatedDate).HasDefaultValueSql("(getutcdate())").HasConversion(
+                v => v,
+                v => new DateTime(v.Ticks, DateTimeKind.Utc));
+            entity.Property(e => e.EndDate).HasDefaultValueSql("(getutcdate())").HasConversion(
+                v => v,
+                v => new DateTime(v.Ticks, DateTimeKind.Utc));
+            entity.Property(e => e.StartDate).HasDefaultValueSql("(getutcdate())").HasConversion(
+                v => v,
+                v => new DateTime(v.Ticks, DateTimeKind.Utc));
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany()
+                .HasForeignKey(d => d.CreatedBy)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Session_Creator");
         });
 
         modelBuilder.Entity<Staff>(entity =>

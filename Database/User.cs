@@ -18,6 +18,8 @@ public partial class User
 
     public Guid? RegisteredBy { get; set; }
 
+    public bool IsActive { get; set; }
+
     public DateTime CreatedDate { get; set; }
 
     public Guid CreatedBy { get; set; }
@@ -30,7 +32,7 @@ public partial class User
 
     public ICollection<Order> OrderCreatedByNavigations { get; set; } = new List<Order>();
 
-    public ICollection<Order> OrderCustomers { get; set; } = new List<Order>();
+    public  ICollection<Order> OrderCustomers { get; set; } = new List<Order>();
 
     public Staff? RegisteredByNavigation { get; set; }
 

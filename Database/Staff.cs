@@ -10,6 +10,8 @@ public partial class Staff
 
     public string Password { get; set; } = null!;
 
+    public bool IsActive { get; set; }
+
     public DateTime CreatedDate { get; set; }
 
     public Guid CreatedBy { get; set; }

@@ -18,9 +18,11 @@ GO
 
 SET ANSI_NULLS ON
 GO
-SET QUOTED_IDENTIFIER ONvisu
+SET QUOTED_IDENTIFIER ON
 GO
 
+DROP TABLE [Margarita].[Session]
+GO
 DROP TABLE [Margarita].[Debit]
 GO
 DROP TABLE [Margarita].[InvoiceItem]
@@ -31,7 +33,15 @@ DROP TABLE [Margarita].[OrderItem]
 GO
 DROP TABLE [Margarita].[Order]
 GO
+DROP TABLE [Margarita].[Recipe]
+GO
 DROP TABLE [Margarita].[Menu]
+GO
+DROP TABLE [Margarita].[Inventory]
+GO
+DROP TABLE [Margarita].[Container]
+GO
+DROP TABLE [Margarita].[Ingredient]
 GO
 DROP TABLE [Margarita].[User]
 GO
@@ -259,21 +269,29 @@ CREATE TABLE [Margarita].[Session](
 ) 
 GO
 
-INSERT [Margarita].[Staff] ([Id], [Name], [Login], [Password], [CreatedDate], [CreatedBy]) 
-VALUES (N'00000001-0001-0001-0001-000000000001', N'Chris', N'ccou', N'fdb2d63c4ae9344375baea39aa82019223376f5e', GETUTCDATE(), N'00000001-0001-0001-0001-000000000001')
+INSERT [Margarita].[Staff] ([Id], [Name], [Login], [Password], [CreatedDate], [CreatedBy], [IsActive]) 
+VALUES (N'00000001-0001-0001-0001-000000000001', N'Bar', N'ccou', N'fdb2d63c4ae9344375baea39aa82019223376f5e', GETUTCDATE(), N'00000001-0001-0001-0001-000000000001', 1)
 GO
 INSERT [Margarita].[Team] ([Id], [Name], [Email], [CreatedDate], [CreatedBy]) 
 VALUES (N'45a72f76-f248-4476-b29a-10c988183ac0', N'Viry 1', NULL, GETUTCDATE(), N'00000001-0001-0001-0001-000000000001')
 GO
-INSERT [Margarita].[User] ([Id], [Name], [Password], [Email], [TeamId], [Pic], [IsRegistered], [RegisteredBy], [CreatedDate], [CreatedBy]) 
-VALUES (N'cc68a50a-b1cd-4207-9230-c0cc534eb1ef', N'Stéphane Vergnaud', N'45a72f76-f248-4476-b29a-10c988183ac0', NULL, N'45a72f76-f248-4476-b29a-10c988183ac0', NULL, 0, NULL, GETUTCDATE(), N'00000001-0001-0001-0001-000000000001')
+INSERT [Margarita].[Team] ([Id], [Name], [Email], [CreatedDate], [CreatedBy]) 
+VALUES (N'10D70B25-67A3-4072-B88A-CBF23B7C17C5', N'Juvisy', NULL, GETUTCDATE(), N'00000001-0001-0001-0001-000000000001')
 GO
+INSERT [Margarita].[User] ([Id], [Name], [Password], [Email], [TeamId], [Pic], [IsRegistered], [RegisteredBy], [CreatedDate], [CreatedBy], [IsActive]) 
+VALUES (N'cc68a50a-b1cd-4207-9230-c0cc534eb1ef', N'Stéphane Vergnaud', N'45a72f76-f248-4476-b29a-10c988183ac0', NULL, N'45a72f76-f248-4476-b29a-10c988183ac0', NULL, 0, NULL, GETUTCDATE(), N'00000001-0001-0001-0001-000000000001', 1)
+GO
+INSERT [Margarita].[User] ([Id], [Name], [Password], [Email], [TeamId], [Pic], [IsRegistered], [RegisteredBy], [CreatedDate], [CreatedBy], [IsActive]) 
+VALUES (N'6837FFFD-95E9-4C66-BC93-94701321B44F', N'Cécile', N'10D70B25-67A3-4072-B88A-CBF23B7C17C5', NULL, N'10D70B25-67A3-4072-B88A-CBF23B7C17C5', NULL, 0, NULL, GETUTCDATE(), N'00000001-0001-0001-0001-000000000001', 1)
+GO
+
 INSERT [Margarita].[Menu] ([Id], [Name], [Category], [Price], [IsActive], [CreatedDate], [CreatedBy], [DeletedBy]) 
 VALUES (N'ae1052c7-0040-45e1-a41d-1fd97eedbf78', N'Heineken', N'Bière', CAST(3.00 AS Decimal(12, 2)), 1, GETUTCDATE(), N'00000001-0001-0001-0001-000000000001', NULL)
 GO
 INSERT [Margarita].[Menu] ([Id], [Name], [Category], [Price], [IsActive], [CreatedDate], [CreatedBy], [DeletedBy]) 
 VALUES (N'11f4fa39-8f27-4272-84e8-34cb2b09ad05', N'Jus d''orange', N'Soft', CAST(2.00 AS Decimal(12, 2)), 1, GETUTCDATE(), N'00000001-0001-0001-0001-000000000001', NULL)
 GO
+
 INSERT [Margarita].[Order] ([Id], [CustomerId], [IsDelivered], [CreatedDate], [CreatedBy]) 
 VALUES (N'9b9524e7-c121-4349-8f69-7efa9b9381b1', N'cc68a50a-b1cd-4207-9230-c0cc534eb1ef', 1, GETUTCDATE(), N'cc68a50a-b1cd-4207-9230-c0cc534eb1ef')
 GO

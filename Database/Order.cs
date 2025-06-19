@@ -8,7 +8,13 @@ public partial class Order
 
     public bool IsDelivered { get; set; }
 
+    public DateTime TakenInChargeDate { get; set; }
+
     public Guid? TakenInChargeBy { get; set; }
+
+    public DateTime PreparationDate { get; set; }
+
+    public DateTime DeliveryDate { get; set; }
 
     public DateTime CreatedDate { get; set; }
 
